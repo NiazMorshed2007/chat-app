@@ -61,16 +61,21 @@ const App = () => {
   useEffect(() => {
     if (isLogged) {
       const getAllUsers = async () => {
-        const querySnapshot = await getDocs(collection(db, "users"));
+        const q = query(
+          collection(db, "users"),
+          where("uid", "!=", user_profile?.uid)
+        );
         const datas = [];
-        querySnapshot.forEach((doc) => {
-          datas.push(doc.data());
-          dispatch(setAllUsers(datas));
+        onSnapshot(q, (querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            datas.push(doc.data());
+            dispatch(setAllUsers(datas));
+          });
         });
       };
       getAllUsers();
     }
-  }, [loading]);
+  }, [loading, isLogged]);
   return (
     <>
       {isLogged ? (
@@ -81,7 +86,7 @@ const App = () => {
               path="*"
               element={
                 <>
-                  <div className="flex text-slate-500 h-full items-center justify-center">
+                  <div className="flex w-11/12 empty-chat text-slate-500 h-full items-center justify-center">
                     <h3 className="p-1 bg-slate-800 px-3 rounded-xl">
                       Select a chat to message 🥡
                     </h3>

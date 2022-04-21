@@ -6,3 +6,18 @@
     }
   }
 }
+
+@media screen and (max-width: 1000px) {
+  .chat-viewer {
+    position: fixed;
+    width: 100%;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+  }
+  .empty-chat {
+    display: none;
+  }
+  .chat-viewer.has-chat {
+    transform: translateX(0px);
+  }
+}

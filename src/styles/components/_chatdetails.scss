@@ -5,3 +5,10 @@
     }
   }
 }
+
+@media screen and (max-width: 1000px) {
+  .chat-details {
+    // width: 100%;
+    display: none;
+  }
+}

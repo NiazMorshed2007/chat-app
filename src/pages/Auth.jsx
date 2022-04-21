@@ -4,48 +4,96 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { gsap, Power2 } from "gsap";
 import { TextPlugin } from "gsap/all";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setLogged } from "../actions";
-import firebase, { db } from "../firebase/firebase";
+import firebase, { db, storage } from "../firebase/firebase";
 gsap.registerPlugin(TextPlugin);
 
 const Auth = () => {
   const [errMsg, setErrMsg] = useState("");
   const [name, setName] = useState("");
+  const [file, setFile] = useState(null);
+  const [url, setUrl] = useState("");
   const [email, setEmail] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(true);
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
+  const storageRef = ref(storage, "avatars/" + file?.name);
   let formRef = useRef();
+  const metadata = {
+    contentType: "image/jpeg",
+  };
   const auth = firebase && getAuth();
+
+  const types = ["image/png", "image/jpg", "image/jpeg"];
+
+  const avatarHandler = (e) => {
+    const selected = e.target.files[0];
+
+    if (selected && types.includes(selected.type)) {
+      setFile(selected);
+      setErrMsg("");
+    } else {
+      setFile(null);
+      setErrMsg("Please select a image file (jpg, png, gif or jpeg)");
+    }
+  };
+
   const handleAuth = (e) => {
     e.preventDefault();
     if (isSigningUp) {
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           const user = userCredential.user;
-          const user_profile = {
-            displayName: name,
-            photoUrl: user?.photoURL,
-            email: user?.email,
-            emailVerified: user?.emailVerified,
-            uid: user?.uid,
-          };
-          const chat = {
-            owner: user?.uid,
-            conversations: [],
-          };
-          setErrMsg("");
-          await setDoc(doc(db, "users", user?.uid), {
-            ...user_profile,
-          });
-          await setDoc(doc(db, "chats", user?.uid), {
-            ...chat,
-          });
-          dispatch(setLogged(true));
+          const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            },
+            (error) => {
+              switch (error.code) {
+                case "storage/unauthorized":
+                  break;
+                case "storage/canceled":
+                  break;
+                case "storage/unknown":
+                  break;
+              }
+            },
+            async () => {
+              const URL = await getDownloadURL(uploadTask.snapshot.ref).then(
+                (downloadURL) => {
+                  return downloadURL;
+                }
+              );
+              const user_profile = {
+                displayName: name,
+                photoUrl: URL,
+                email: user?.email,
+                emailVerified: user?.emailVerified,
+                uid: user?.uid,
+              };
+              const chat = {
+                owner: user?.uid,
+                conversations: [],
+              };
+              setErrMsg("");
+              setDoc(doc(db, "users", user?.uid), {
+                ...user_profile,
+              });
+              setDoc(doc(db, "chats", user?.uid), {
+                ...chat,
+              });
+              dispatch(setLogged(true));
+            }
+          );
         })
         .catch((err) => {
           switch (err.code) {
@@ -75,6 +123,19 @@ const Auth = () => {
         });
     }
   };
+
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setUrl("");
+    }
+  }, [file]);
+
   useEffect(() => {
     gsap.fromTo(
       ".cursor",
@@ -126,7 +187,7 @@ const Auth = () => {
   }, []);
   return (
     <main className="auth px-3 text-slate-400 flex flex-col items-center justify-center w-screen h-screen">
-      <div className="absolute top-5 gap-3 items-center flex right-5">
+      <div className="fixed top-5 gap-3 items-center flex right-5">
         <h3>Already have an account?</h3>
         <button className="cursor-pointer bg-slate-800 p-1 px-3 rounded-xl">
           Sign in
@@ -144,9 +205,34 @@ const Auth = () => {
           onSubmit={handleAuth}
           className="form rounded-lg overflow-hidden mt-8 pb-4 bg-slate-900 border border-slate-800 p-3"
         >
+          <div className="flex bg-slate-700 gap-3 mb-3 h-max py-5 p-4 rounded-lg items-center">
+            <div className="avatar-wrapper overflow-hidden w-16 h-16 rounded-full bg-slate-800">
+              {url !== "" && (
+                <img
+                  className="w-full h-full object-center object-cover"
+                  src={url}
+                  alt=""
+                />
+              )}
+            </div>
+            <div>
+              <input
+                required
+                onChange={avatarHandler}
+                className=" w-10/12 file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:cursor-pointer
+              file:text-sm file:font-semibold
+              file:bg-cyan-700 file:text-slate-300
+              hover:file:bg-cyan-600"
+                type="file"
+              />
+            </div>
+          </div>
           <label htmlFor="name">
             <p className="text-slate-500">Enter you Name</p>
             <input
+              className="w-input"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -159,6 +245,7 @@ const Auth = () => {
           <label htmlFor="email">
             <p className="text-slate-500">Enter you email</p>
             <input
+              className="w-input"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -173,6 +260,7 @@ const Auth = () => {
             <input
               required
               value={password}
+              className="w-input"
               onChange={(e) => {
                 setPassword(e.target.value);
                 setErrMsg("");

@@ -31,7 +31,6 @@ const Sidebar = () => {
         // console.log(doc.id, " => ", doc.data(), "hdsa");
         data.push(doc.data());
         setJoinedUsers(data);
-        console.log(data);
       });
     }
   };
@@ -123,8 +122,16 @@ const Sidebar = () => {
                   className="chat cursor-pointer p-2 flex items-center gap-2 transition-all rounded-lg hover:bg-slate-800"
                   key={i}
                 >
-                  <div className="avatar-wrapper h-10">
-                    <div className="avatar w-10 h-full rounded-full bg-slate-600"></div>
+                  <div className="avatar-wrapper">
+                    <div className="avatar-wrapper overflow-hidden w-12 h-12 rounded-full bg-slate-800">
+                      {profile.photoUrl !== "" && (
+                        <img
+                          className="w-full h-full object-center object-cover"
+                          src={profile.photoUrl}
+                          alt=""
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="cont">
                     <h3>{profile.displayName}</h3>

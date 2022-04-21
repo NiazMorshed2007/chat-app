@@ -134,104 +134,124 @@ const Chat = () => {
     }
   }, [reciverProfile]);
   return (
-    <div className="relative chat h-full">
-      {reciverProfile && (
-        <>
-          <header className="p-3 pb-2 h-1/12 border-b text-slate-100 border-slate-600 flex items-center gap-3">
-            <div className="avatar-wrapper h-12">
-              <div className="avatar w-12 h-full rounded-full bg-slate-600"></div>
-            </div>
-            <div className="cont">
-              {/* <h3>{profile.displayName}</h3> */}
-              <h3>{reciverProfile.displayName}</h3>
-              <p className="w-full text-sm text-slate-500">
-                last seen 1 hour ago
-                {/* {conversation?.messages[0].content} */}
-              </p>
-            </div>
-          </header>
-          <main
-            className={`text-slate-400 h-full pb-28 flex ${
-              messages.length < 1
-                ? "justify-center items-center"
-                : "flex-col p-3"
-            }`}
-          >
-            {messages.length > 0 ? (
-              <>
-                {messages.map((message, i) => (
-                  <div
-                    className={`msg p-1 flex w-max text-slate-300 px-4 rounded-lg ${
-                      message.sender_uid === user_profile.uid
-                        ? "bg-cyan-700 self-end"
-                        : "bg-slate-800"
-                    }`}
-                    key={i}
-                  >
-                    {message.content}
-                  </div>
-                ))}
-              </>
-            ) : (
-              <div className="say-hi p-3 flex flex-col items-center justify-center bg-slate-700 rounded-lg">
-                <div className="avatar-wrapper m-2 h-14">
-                  <div className="avatar w-14 h-full rounded-full bg-slate-600"></div>
+    <main
+      className={`chat-viewer transition-all ${
+        chat_id && "has-chat"
+      } h-full w-11/12 bg-slate-900`}
+    >
+      <div className="relative chat h-full">
+        {reciverProfile && (
+          <>
+            <header className="p-3 pb-2 h-1/12 border-b text-slate-100 border-slate-600 flex items-center gap-3">
+              <div className="avatar-wrapper h-12">
+                <div className="avatar w-12 h-full rounded-full overflow-hidden bg-slate-600">
+                  {reciverProfile.photoUrl !== "" && (
+                    <img
+                      className="w-full h-full object-center object-cover"
+                      src={reciverProfile.photoUrl}
+                    />
+                  )}
                 </div>
-                <div className="cont">
-                  {/* <h3>{profile.displayName}</h3> */}
-                  <h3>{chat_id}</h3>
-                  <p className="w-full text-sm text-slate-500">
-                    last seen 1 hour ago
-                    {/* {conversation?.messages[0].content} */}
-                  </p>
-                </div>
-                <p className="mt-5">
-                  Say hi to
-                  <span className="t px-2 text-cyan-500">
-                    {reciverProfile.displayName}
-                  </span>
-                  and be his friend 🚀
-                </p>
-                <button
-                  onClick={newConversation}
-                  className="mt-4 p-1 transition-all bg-slate-800 px-3 border border-transparent hover:border-white cursor-pointer rounded-lg text-slate-400"
-                >
-                  Say hi
-                </button>
               </div>
-            )}
-          </main>
-          <form
-            onSubmit={handleSubmit}
-            className="absolute text-slate-400 flex gap-3 items-center left-0 bottom-0 p-4 bg-slate-800 w-full"
-          >
-            <i>
-              <FiImage />
-            </i>
-            <i>
-              <BiSticker />
-            </i>
-            <i>
-              <AiOutlineFileGif />
-            </i>
-            {/* <form className="flex w-4/5"> */}
-            <input
-              value={text}
-              onChange={(e) => {
-                setText(e.target.value);
-              }}
-              placeholder="Type a message..."
-              className="p-2 px-3 w-4/5 bg-slate-600 placeholder:text-sm outline-none rounded-lg"
-              type="text"
-            />
-            <button type="submit">
-              <FiSend />
-            </button>
-            {/* </form> */}
-          </form>
-        </>
-      )}
-    </div>
+              <div className="cont">
+                {/* <h3>{profile.displayName}</h3> */}
+                <h3>{reciverProfile.displayName}</h3>
+                <p className="w-full text-sm text-slate-500">
+                  last seen 1 hour ago
+                  {/* {conversation?.messages[0].content} */}
+                </p>
+              </div>
+            </header>
+            <main
+              className={`text-slate-400 h-full pb-28 flex ${
+                messages.length < 1
+                  ? "justify-center items-center"
+                  : "flex-col p-3"
+              }`}
+            >
+              {messages.length > 0 ? (
+                <>
+                  {messages.map((message, i) => (
+                    <div
+                      className={`msg p-1 mb-2 flex w-max text-slate-300 px-4 rounded-lg ${
+                        message.sender_uid === user_profile.uid
+                          ? "bg-cyan-700 self-end"
+                          : "bg-slate-800"
+                      }`}
+                      key={i}
+                    >
+                      {message.content}
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="say-hi p-3 flex flex-col items-center justify-center bg-slate-700 rounded-lg">
+                  <div className="avatar-wrapper m-2 h-14">
+                    <div className="avatar w-14 h-full rounded-full overflow-hidden bg-slate-600">
+                      {reciverProfile.photoUrl !== "" && (
+                        <img
+                          className="w-full h-full object-center object-cover"
+                          src={reciverProfile.photoUrl}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="cont">
+                    {/* <h3>{profile.displayName}</h3> */}
+                    <h3>{chat_id}</h3>
+                    <p className="w-full text-sm text-slate-500">
+                      last seen 1 hour ago
+                      {/* {conversation?.messages[0].content} */}
+                    </p>
+                  </div>
+                  <p className="mt-5">
+                    Say hi to
+                    <span className="t px-2 text-cyan-500">
+                      {reciverProfile.displayName}
+                    </span>
+                    and be his friend 🚀
+                  </p>
+                  <button
+                    onClick={newConversation}
+                    className="mt-4 p-1 transition-all bg-slate-800 px-3 border border-transparent hover:border-white cursor-pointer rounded-lg text-slate-400"
+                  >
+                    Say hi
+                  </button>
+                </div>
+              )}
+            </main>
+            <form
+              onSubmit={handleSubmit}
+              className="absolute text-slate-400 flex gap-3 items-center left-0 bottom-0 p-4 bg-slate-800 w-full"
+            >
+              <i>
+                <FiImage />
+              </i>
+              <i>
+                <BiSticker />
+              </i>
+              <i>
+                <AiOutlineFileGif />
+              </i>
+              {/* <form className="flex w-4/5"> */}
+              <input
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                }}
+                placeholder="Type a message..."
+                className="p-2 px-3 w-4/5 bg-slate-600 placeholder:text-sm outline-none rounded-lg"
+                type="text"
+              />
+              <button type="submit">
+                <FiSend />
+              </button>
+              {/* </form> */}
+            </form>
+          </>
+        )}
+      </div>
+    </main>
   );
 };
 

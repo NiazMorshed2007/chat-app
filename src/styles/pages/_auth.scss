@@ -1,6 +1,6 @@
 .auth {
   form {
-    input {
+    .w-input {
       @apply outline-none px-2 py-1 transition-all
        w-full rounded-sm border border-transparent hover:border-slate-400
         focus:border-slate-400 bg-slate-800 text-slate-400;

@@ -1,0 +1,21 @@
+@import "./classes";
+@import "./font";
+@import "./components/sidebar";
+@import "./components/chatdetails";
+@import "./pages/auth";
+@import "./pages/chat";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, $nunito;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0f172a;
+  overflow: hidden;
+}

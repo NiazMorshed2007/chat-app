@@ -174,12 +174,12 @@ const Auth = () => {
       .fromTo(
         ".form",
         {
-          height: 0,
+          height: 0 + "px",
           opacity: 0,
           duration: 3,
         },
         {
-          height: formRef.current.scrollHeight + "px",
+          height: "max-content",
           opacity: 1,
           ease: Power2.easeOut,
         }

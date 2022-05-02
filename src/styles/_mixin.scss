@@ -1,0 +1,26 @@
+@mixin customScrollBar {
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      @apply opacity-0;
+    }
+    &::-webkit-scrollbar-track {
+      opacity: 1;
+    }
+  }
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    opacity: 0;
+    visibility: hidden;
+    @apply bg-slate-400;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgb(185, 185, 185);
+    border-radius: 18px;
+    opacity: 0;
+    visibility: hidden;
+  }
+}

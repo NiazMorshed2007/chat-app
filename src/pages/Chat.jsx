@@ -26,39 +26,9 @@ const Chat = () => {
     return state.user_profile;
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const msg_ref = doc(
-      db,
-      "chats/",
-      user_profile.uid,
-      "/conversations",
-      reciverProfile.uid
-    );
-    const msg_ref2 = doc(
-      db,
-      "chats/",
-      reciverProfile.uid,
-      "/conversations",
-      user_profile.uid
-    );
-    const message = {
-      content: text,
-      sender_uid: user_profile.uid,
-      reciver_uid: reciverProfile.uid,
-    };
-    await updateDoc(msg_ref, {
-      messages: arrayUnion(message),
-    });
-    await updateDoc(msg_ref2, {
-      messages: arrayUnion(message),
-    });
-    setText("");
-  };
-  // const chat = chats && chats.conversations.find((convers))
   const newConversation = async () => {
     const firstMessage = {
-      content: "Hi✋",
+      content: text !== "" ? text : "Hi ✋",
       sender_uid: user_profile.uid,
       reciver_uid: reciverProfile.uid,
     };
@@ -96,12 +66,72 @@ const Chat = () => {
         },
       ],
     };
+
+    const s_ref = doc(db, "users", user_profile.uid);
+    const r_ref = doc(db, "users", reciverProfile.uid);
+
+    await updateDoc(s_ref, {
+      connected_users: arrayUnion({
+        displayName: reciverProfile.displayName,
+        uid: reciverProfile.uid,
+        email: reciverProfile.email,
+        photoUrl: reciverProfile.photoUrl,
+      }),
+    });
+
+    await updateDoc(r_ref, {
+      connected_users: arrayUnion({
+        displayName: user_profile.displayName,
+        uid: user_profile.uid,
+        photoUrl: user_profile.photoUrl,
+        email: user_profile.email,
+      }),
+    });
+
     await setDoc(reciver_chatsRef, {
       ...forReciver,
     });
     await setDoc(sender_chatsRef, {
       ...forSender,
     });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (text !== "") {
+      if (messages.length > 0) {
+        const msg_ref = doc(
+          db,
+          "chats/",
+          user_profile.uid,
+          "/conversations",
+          reciverProfile.uid
+        );
+        const msg_ref2 = doc(
+          db,
+          "chats/",
+          reciverProfile.uid,
+          "/conversations",
+          user_profile.uid
+        );
+        const message = {
+          content: text,
+          sender_uid: user_profile.uid,
+          reciver_uid: reciverProfile.uid,
+        };
+        await updateDoc(msg_ref, {
+          messages: arrayUnion(message),
+        });
+        await updateDoc(msg_ref2, {
+          messages: arrayUnion(message),
+        });
+        setText("");
+      } else {
+        newConversation();
+      }
+    } else {
+      window.alert("Enter a message to send");
+    }
   };
 
   useEffect(() => {
@@ -163,7 +193,7 @@ const Chat = () => {
               </div>
             </header>
             <main
-              className={`text-slate-400 h-full pb-28 flex ${
+              className={`text-slate-400 overflow-y-auto h-full pb-48 flex ${
                 messages.length < 1
                   ? "justify-center items-center"
                   : "flex-col p-3"

@@ -79,10 +79,10 @@ const Auth = () => {
                 email: user?.email,
                 emailVerified: user?.emailVerified,
                 uid: user?.uid,
+                connected_users: [],
               };
               const chat = {
                 owner: user?.uid,
-                conversations: [],
               };
               setErrMsg("");
               setDoc(doc(db, "users", user?.uid), {

@@ -1,18 +1,11 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllUsers, setChats, setLogged, setProfile } from "./actions";
+import { Route, Routes } from "react-router-dom";
+import { setLogged, setProfile } from "./actions";
+import firebase from "./firebase/firebase";
 import Layout from "./layout/Layout";
 import Auth from "./pages/Auth";
-import firebase, { db } from "./firebase/firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  onSnapshot,
-} from "firebase/firestore";
-import { Route, Routes } from "react-router-dom";
 import Chat from "./pages/Chat";
 
 const App = () => {
@@ -25,14 +18,11 @@ const App = () => {
   const isLogged = useSelector((state) => {
     return state.isLogged;
   });
-  const chats = useSelector((state) => {
-    return state.chats;
-  });
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const user_obj = {
-          displayName: user?.displayName ? user.displayName : user?.email,
+          displayName: user?.displayName,
           email: user?.email,
           photoUrl: user?.photoURL,
           emailVerified: user?.emailVerified,
@@ -48,34 +38,25 @@ const App = () => {
     });
   }, []);
   useEffect(() => {
-    const q = query(
-      collection(db, "chats"),
-      where("owner", "==", user_profile.uid)
-    );
-    onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        dispatch(setChats(doc.data()));
-      });
-    });
+    // onSnapshot(collection(db, "chats/", user_profile.uid), (doc) => {
+    //   if (doc.data() === undefined) {
+    //     // setMessages([]);
+    //   } else {
+    //     console.log(doc.data());
+    //     // setMessages(doc.data().messages);
+    //   }
+    // });
+    // const q = query(
+    //   collection(db, "chats"),
+    //   where("owner", "==", user_profile.uid)
+    // );
+    // onSnapshot(q, (querySnapshot) => {
+    //   querySnapshot.forEach((doc) => {
+    //     dispatch(setChats(doc.data()));
+    //   });
+    // });
   }, [loading]);
-  useEffect(() => {
-    if (isLogged) {
-      const getAllUsers = async () => {
-        const q = query(
-          collection(db, "users"),
-          where("uid", "!=", user_profile?.uid)
-        );
-        const datas = [];
-        onSnapshot(q, (querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            datas.push(doc.data());
-            dispatch(setAllUsers(datas));
-          });
-        });
-      };
-      getAllUsers();
-    }
-  }, [loading, isLogged]);
+
   return (
     <>
       {isLogged ? (

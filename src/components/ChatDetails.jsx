@@ -1,9 +1,5 @@
 import React from "react";
 import { MdClear } from "react-icons/md";
-import { IoPersonAddOutline } from "react-icons/io5";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { AiOutlineInfoCircle } from "react-icons/ai";
-import { RiLogoutBoxLine } from "react-icons/ri";
 
 const ChatDetails = () => {
   return (
@@ -28,8 +24,8 @@ const ChatDetails = () => {
           <RiLogoutBoxLine />
         </i>
       </div> */}
-      <div className="mt-4 p-1 transition-all bg-slate-700 px-3 border border-transparent hover:border-white cursor-pointer rounded-lg text-slate-400">
-        Your conversation details will be showed here 🔥
+      <div className="mt-4 p-1 text-center transition-all bg-slate-700 px-3 border border-transparent hover:border-white cursor-pointer rounded-lg text-slate-400">
+        Your conversation details will show here 🔥
       </div>
     </aside>
   );

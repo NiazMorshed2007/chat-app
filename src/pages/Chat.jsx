@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FiSend, FiImage } from "react-icons/fi";
 import { BiSticker } from "react-icons/bi";
 import { AiOutlineFileGif } from "react-icons/ai";
@@ -15,17 +15,20 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import { BsArrowLeft } from "react-icons/bs";
+import Loading from "../components/Loading";
 
 const Chat = () => {
   const { chat_id } = useParams();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [text, setText] = useState("");
   const [reciverProfile, setReciverProfile] = useState(null);
+  const [senderProfile, setSenderProfile] = useState(null);
   const user_profile = useSelector((state) => {
     return state.user_profile;
   });
-
   const newConversation = async () => {
     const firstMessage = {
       content: text !== "" ? text : "Hi ✋",
@@ -81,9 +84,9 @@ const Chat = () => {
 
     await updateDoc(r_ref, {
       connected_users: arrayUnion({
-        displayName: user_profile.displayName,
+        displayName: senderProfile.displayName,
         uid: user_profile.uid,
-        photoUrl: user_profile.photoUrl,
+        photoUrl: senderProfile.photoUrl,
         email: user_profile.email,
       }),
     });
@@ -139,10 +142,20 @@ const Chat = () => {
     onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         setReciverProfile(doc.data());
-        setLoading(false);
+      });
+    });
+
+    const q1 = query(
+      collection(db, "users"),
+      where("uid", "==", user_profile.uid)
+    );
+    onSnapshot(q1, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        setSenderProfile(doc.data());
       });
     });
   }, [chat_id]);
+  useEffect(() => {}, []);
   useEffect(() => {
     if (reciverProfile?.uid) {
       onSnapshot(
@@ -158,6 +171,7 @@ const Chat = () => {
             setMessages([]);
           } else {
             setMessages(doc.data().messages);
+            // setLoading(false);
           }
         }
       );
@@ -169,10 +183,18 @@ const Chat = () => {
         chat_id && "has-chat"
       } h-full w-11/12 bg-slate-900`}
     >
+      {/* {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <Loading />
+        </div>
+      ) : ( */}
       <div className="relative chat h-full">
         {reciverProfile && (
           <>
             <header className="p-3 pb-2 h-1/12 border-b text-slate-100 border-slate-600 flex items-center gap-3">
+              <i onClick={() => navigate(-1)} className="md:hidden block">
+                <BsArrowLeft />
+              </i>
               <div className="avatar-wrapper h-12">
                 <div className="avatar w-12 h-full rounded-full overflow-hidden bg-slate-600">
                   {reciverProfile.photoUrl !== "" && (
@@ -187,7 +209,7 @@ const Chat = () => {
                 {/* <h3>{profile.displayName}</h3> */}
                 <h3>{reciverProfile.displayName}</h3>
                 <p className="w-full text-sm text-slate-500">
-                  last seen 1 hour ago
+                  last seen .. {"(work in progress 😃)"}
                   {/* {conversation?.messages[0].content} */}
                 </p>
               </div>
@@ -281,6 +303,7 @@ const Chat = () => {
           </>
         )}
       </div>
+      {/* )} */}
     </main>
   );
 };

@@ -1,15 +1,15 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 import { setLogged, setProfile } from "./actions";
-import firebase from "./firebase/firebase";
+import firebase, { db } from "./firebase/firebase";
 import Layout from "./layout/Layout";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const auth = firebase && getAuth();
   const user_profile = useSelector((state) => {
@@ -21,41 +21,29 @@ const App = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const user_obj = {
-          displayName: user?.displayName,
-          email: user?.email,
-          photoUrl: user?.photoURL,
-          emailVerified: user?.emailVerified,
-          uid: user?.uid,
-        };
-        dispatch(setProfile(user_obj));
-        setLoading(false);
+        // const q = query(collection(db, "users"), where("uid", "==", user?.uid));
+        // onSnapshot(q, (querySnapshot) => {
+        //   querySnapshot.forEach((doc) => {
+        //     dispatch(setProfile(doc.data()));
+        //   });
+        // });
+        dispatch(
+          setProfile({
+            displayName: user?.displayName,
+            email: user?.email,
+            photoUrl: user?.photoURL,
+            emailVerified: user?.emailVerified,
+            uid: user?.uid,
+          })
+        );
         dispatch(setLogged(true));
+        // console.log(user);
       } else {
-        setLoading(false);
         dispatch(setLogged(false));
       }
     });
+    console.log(user_profile);
   }, []);
-  useEffect(() => {
-    // onSnapshot(collection(db, "chats/", user_profile.uid), (doc) => {
-    //   if (doc.data() === undefined) {
-    //     // setMessages([]);
-    //   } else {
-    //     console.log(doc.data());
-    //     // setMessages(doc.data().messages);
-    //   }
-    // });
-    // const q = query(
-    //   collection(db, "chats"),
-    //   where("owner", "==", user_profile.uid)
-    // );
-    // onSnapshot(q, (querySnapshot) => {
-    //   querySnapshot.forEach((doc) => {
-    //     dispatch(setChats(doc.data()));
-    //   });
-    // });
-  }, [loading]);
 
   return (
     <>

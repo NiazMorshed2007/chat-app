@@ -21,29 +21,7 @@ const Sidebar = () => {
   const all_users = useSelector((state) => {
     return state.all_users;
   });
-  const isLogged = useSelector((state) => {
-    return state.isLogged;
-  });
-  // const handleSearch = async (e) => {
-  //   setSearchVal(e.target.value);
-  //   if (searchVal !== "") {
-  //     const q = query(
-  //       collection(db, "users"),
-  //       where("email", ">=", searchVal),
-  //       where("email", "<=", searchVal + "\uf8ff")
-  //     );
-  //     const querySnapshot = await getDocs(q);
-  //     querySnapshot.forEach((doc) => {
-  //       const data = [];
-  //       // doc.data() is never undefined for query doc snapshots
-  //       // console.log(doc.id, " => ", doc.data(), "hdsa");
-  //       data.push(doc.data());
-  //       setJoinedUsers(data);
-  //     });
-  //   }
-  // };
 
-  // console.log(all_users);
   const navigate = useNavigate();
   useEffect(() => {
     onSnapshot(doc(db, "users", user_profile.uid), (doc) => {
@@ -52,27 +30,29 @@ const Sidebar = () => {
     });
   }, []);
   useEffect(() => {
-    if (isLogged) {
-      const getAllUsers = async () => {
-        const q = query(
-          collection(db, "users"),
-          where("uid", "!=", user_profile?.uid)
-        );
+    const getAllUsers = async () => {
+      const q = query(
+        collection(db, "users"),
+        where("uid", "!=", user_profile?.uid)
+      );
+      onSnapshot(q, (querySnapshot) => {
         const datas = [];
-        onSnapshot(q, (querySnapshot) => {
-          querySnapshot.forEach((doc) => {
+        querySnapshot.forEach((doc) => {
+          if (doc.data() === undefined) {
+            dispatch(setAllUsers([]));
+          } else {
             datas.push(doc.data());
-          });
-          dispatch(setAllUsers(datas));
+            dispatch(setAllUsers(datas));
+          }
           setLoadingAll_users(false);
         });
-      };
-      getAllUsers();
-    }
-  }, [isLogged]);
+      });
+    };
+    getAllUsers();
+  }, []);
   return (
     <aside className="sidebar w-4/12 h-100 pt-4 text-primary border-r-slate-600 border-r">
-      <header className="w-full px-4 flex h-min items-center text-slate-400">
+      <header className="w-full px-4 flex h-min items-center">
         <div className="burger w-12 p-2 h-10 flex flex-col items-center justify-center cursor-pointer rounded-full transition-all active:bg-slate-800">
           <div></div>
           <div></div>
@@ -83,7 +63,7 @@ const Sidebar = () => {
             <FiSearch />
           </i>
           <input
-            value={searchVal}
+            // value={searchVal}
             // onChange={(e) => {
             //   handleSearch(e);
             // }}
@@ -98,11 +78,11 @@ const Sidebar = () => {
         <div className="inne">
           <div className="chats-head px-3 py-3 flex items-center justify-between">
             <div className="flex items-center gap-1 cursor-pointer">
-              <span>Chats</span>
-              <MdKeyboardArrowDown />
+              <span className="text-slate-400">Chats</span>
+              <MdKeyboardArrowDown className="text-slate-400" />
             </div>
             <i className="cursor-pointer">
-              <BiMessageRoundedAdd />
+              <BiMessageRoundedAdd className="text-slate-400" />
             </i>
           </div>
           {chatsLoading ? (
@@ -129,10 +109,9 @@ const Sidebar = () => {
                         </div>
                       </div>
                       <div className="cont">
-                        <h3>{conversation.displayName}</h3>
-                        <p className="w-full text-slate-500">
-                          {/* {conversation?.messages[0].content} */}
-                        </p>
+                        <h3 className="text-slate-300">
+                          {conversation.displayName}
+                        </h3>
                       </div>
                     </div>
                   ))}
@@ -140,7 +119,7 @@ const Sidebar = () => {
               ) : (
                 <>
                   <div className="empty p-3 flex flex-col items-center justify-center bg-slate-700 rounded-lg text-sm">
-                    <p className="text-center">
+                    <p className="text-center text-slate-300">
                       You don't have any conversations yet. Say hi to anyone and
                       grow connection 🚀
                     </p>
@@ -157,8 +136,8 @@ const Sidebar = () => {
               <>
                 <div className="chats-head px-3 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-1 cursor-pointer">
-                    <span>People joined</span>
-                    <MdKeyboardArrowDown />
+                    <span className="text-slate-400">People joined</span>
+                    <MdKeyboardArrowDown className="text-slate-400" />
                   </div>
                   {/* <i className="cursor-pointer">
                 <BiMessageRoundedAdd />
@@ -191,10 +170,9 @@ const Sidebar = () => {
                             </div>
                           </div>
                           <div className="cont">
-                            <h3>{profile.displayName}</h3>
-                            <p className="w-full text-slate-500">
-                              {/* {conversation?.messages[0].content} */}
-                            </p>
+                            <h3 className="text-slate-300">
+                              {profile.displayName}
+                            </h3>
                           </div>
                         </div>
                       ))}
